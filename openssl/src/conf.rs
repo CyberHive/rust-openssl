@@ -11,9 +11,14 @@ foreign_type_and_impl_send_sync! {
 #[cfg(not(boringssl))]
 mod methods {
     use super::Conf;
+    use crate::cvt;
     use crate::cvt_p;
     use crate::error::ErrorStack;
+    use libc::c_int;
     use openssl_macros::corresponds;
+    use std::ffi::CString;
+    use std::path::Path;
+    use std::ptr;
 
     pub struct ConfMethod(*mut ffi::CONF_METHOD);
 
@@ -58,6 +63,29 @@ mod methods {
         #[corresponds(NCONF_new)]
         pub fn new(method: ConfMethod) -> Result<Conf, ErrorStack> {
             unsafe { cvt_p(ffi::NCONF_new(method.as_ptr())).map(Conf) }
+        }
+    }
+
+    /// configures OpenSSL using file filename and application name appname.
+    /// If filename is None the standard OpenSSL configuration file is used
+    /// If appname is None the standard OpenSSL application name openssl_conf is used.
+    /// The behaviour can be customized using flags.
+    #[corresponds(CONF_modules_load_file)]
+    pub fn modules_load_file<P: AsRef<Path>>(
+        filename: Option<P>,
+        appname: Option<String>,
+        flags: u32,
+    ) -> Result<c_int, ErrorStack> {
+        let filename =
+            filename.map(|f| CString::new(f.as_ref().as_os_str().to_str().unwrap()).unwrap());
+        let appname = appname.map(|a| CString::new(a).unwrap());
+
+        unsafe {
+            cvt(ffi::CONF_modules_load_file(
+                filename.as_ref().map_or(ptr::null(), |f| f.as_ptr()),
+                appname.as_ref().map_or(ptr::null(), |a| a.as_ptr()),
+                flags as _,
+            ))
         }
     }
 }
