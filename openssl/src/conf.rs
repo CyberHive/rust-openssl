@@ -14,14 +14,14 @@ mod methods {
     use crate::cvt;
     use crate::cvt_p;
     use crate::error::ErrorStack;
-    use libc::c_int;
+    use libc::{c_int, c_ulong};
     use openssl_macros::corresponds;
     use std::ffi::CString;
     use std::path::Path;
     use std::ptr;
 
     #[derive(Copy, Clone, PartialEq, Eq)]
-    pub struct ConfMflags(c_int);
+    pub struct ConfMflags(c_ulong);
 
     impl ConfMflags {
         pub const IGNORE_ERRORS: ConfMflags = ConfMflags(ffi::CONF_MFLAGS_IGNORE_ERRORS);
@@ -39,12 +39,12 @@ mod methods {
         );
 
         /// Constructs an `ConfMflags` from a raw OpenSSL value.
-        pub fn from_raw(id: c_int) -> Self {
+        pub fn from_raw(id: c_ulong) -> Self {
             ConfMflags(id)
         }
 
         /// Returns the raw OpenSSL value represented by this type.
-        pub fn as_raw(&self) -> c_int {
+        pub fn as_raw(&self) -> c_ulong {
             self.0
         }
     }
