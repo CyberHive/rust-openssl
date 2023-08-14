@@ -20,6 +20,34 @@ mod methods {
     use std::path::Path;
     use std::ptr;
 
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    pub struct ConfMflags(c_int);
+
+    impl ConfMflags {
+        pub const IGNORE_ERRORS: ConfMflags = ConfMflags(ffi::CONF_MFLAGS_IGNORE_ERRORS);
+        pub const IGNORE_RETURN_CODES: ConfMflags =
+            ConfMflags(ffi::CONF_MFLAGS_IGNORE_RETURN_CODES);
+        pub const SILENT: ConfMflags = ConfMflags(ffi::CONF_MFLAGS_SILENT);
+        pub const NO_DSO: ConfMflags = ConfMflags(ffi::CONF_MFLAGS_NO_DSO);
+        pub const IGNORE_MISSING_FILE: ConfMflags =
+            ConfMflags(ffi::CONF_MFLAGS_IGNORE_MISSING_FILE);
+        pub const DEFAULT_SECTION: ConfMflags = ConfMflags(ffi::CONF_MFLAGS_DEFAULT_SECTION);
+        pub const DEFAULT_CONF_MFLAGS: ConfMflags = ConfMflags(
+            ffi::CONF_MFLAGS_DEFAULT_SECTION
+                | ffi::CONF_MFLAGS_IGNORE_MISSING_FILE
+                | ffi::CONF_MFLAGS_IGNORE_RETURN_CODES,
+        );
+
+        /// Constructs an `ConfMflags` from a raw OpenSSL value.
+        pub fn from_raw(id: c_int) -> Self {
+            ConfMflags(id)
+        }
+
+        /// Returns the raw OpenSSL value represented by this type.
+        pub fn as_raw(&self) -> c_int {
+            self.0
+        }
+    }
     pub struct ConfMethod(*mut ffi::CONF_METHOD);
 
     impl ConfMethod {
@@ -74,7 +102,7 @@ mod methods {
     pub fn modules_load_file<P: AsRef<Path>>(
         filename: Option<P>,
         appname: Option<String>,
-        flags: u32,
+        flags: ConfMflags,
     ) -> Result<c_int, ErrorStack> {
         let filename =
             filename.map(|f| CString::new(f.as_ref().as_os_str().to_str().unwrap()).unwrap());
@@ -84,7 +112,7 @@ mod methods {
             cvt(ffi::CONF_modules_load_file(
                 filename.as_ref().map_or(ptr::null(), |f| f.as_ptr()),
                 appname.as_ref().map_or(ptr::null(), |a| a.as_ptr()),
-                flags as _,
+                flags.as_raw() as _,
             ))
         }
     }

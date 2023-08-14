@@ -1,5 +1,12 @@
 use super::super::*;
 
+pub const CONF_MFLAGS_IGNORE_ERRORS: c_int = 0x1;
+pub const CONF_MFLAGS_IGNORE_RETURN_CODES: c_int = 0x2;
+pub const CONF_MFLAGS_SILENT: c_int = 0x4;
+pub const CONF_MFLAGS_NO_DSO: c_int = 0x8;
+pub const CONF_MFLAGS_IGNORE_MISSING_FILE: c_int = 0x10;
+pub const CONF_MFLAGS_DEFAULT_SECTION: c_int = 0x20;
+
 extern "C" {
     pub fn NCONF_new(meth: *mut CONF_METHOD) -> *mut CONF;
     pub fn NCONF_default() -> *mut CONF_METHOD;
