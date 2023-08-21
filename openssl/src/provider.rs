@@ -75,7 +75,7 @@ impl Provider {
         }
     }
     #[corresponds(OSSL_PROVIDER_add_builtin)
-    pub fn add_builtin(ctx: Option<&LibCtxRef>, provider: &str, init_func: unsafe external "C" fn) -> Result<(), ErrorStack) {
+    pub fn add_builtin(ctx: Option<&LibCtxRef>, provider: &str, init_func: unsafe extern "C" fn) -> Result<(), ErrorStack) {
         let provider_name = CString::new(provider).unwrap();
         unsafe {
             cvt(ffi::OSSL_PROVIDER_add_builtin(
