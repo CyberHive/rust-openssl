@@ -18,7 +18,7 @@ extern "C" {
         path: *const c_char,
     ) -> c_int;
     #[cfg(ossl300)]
-    fn OSSL_PROVIDER_add_builtin(
+    pub fn OSSL_PROVIDER_add_builtin(
         ctx: *mut OSSL_LIB_CTX,
         provider: *const c_char,
         builtin_pointer: unsafe extern "C" fn(),
